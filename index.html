@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedScribe | Intelligent Clinical Documentation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <!-- Google Fonts: Plus Jakarta Sans for a modern, medical feel -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        medical: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            500: '#14b8a6', // Teal
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            800: '#115e59',
+                            900: '#134e4a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .recording-pulse {
+            animation: pulse-teal 1.5s infinite;
+        }
+
+        @keyframes pulse-teal {
+            0% {
+                box-shadow: 0 0 0 0 rgba(20, 184, 166, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 15px rgba(20, 184, 166, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(20, 184, 166, 0);
+            }
+        }
+
+        /* Smooth fade transition */
+        .fade-enter {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        .fade-enter-active {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+        }
+
+        .fade-exit {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .fade-exit-active {
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.3s ease-in, transform 0.3s ease-in;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-slate-800 antialiased selection:bg-medical-100 selection:text-medical-900">
+
+    <!-- LANDING PAGE -->
+    <div id="landing-page" class="flex flex-col min-h-screen">
+
+        <!-- Navbar -->
+        <nav
+            class="fixed w-full z-50 transition-all duration-300 bg-white/80 backdrop-blur-md border-b border-gray-100">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <div class="flex items-center gap-2">
+                        <div class="bg-medical-50 p-2 rounded-lg">
+                            <i class="fa-solid fa-notes-medical text-medical-600 text-xl"></i>
+                        </div>
+                        <span class="text-xl font-bold text-gray-900 tracking-tight">MedScribe<span
+                                class="text-medical-500">.ai</span></span>
+                    </div>
+
+                    <!-- Mobile Action -->
+                    <div class="md:hidden">
+                        <button onclick="enterApp()"
+                            class="bg-medical-600 hover:bg-medical-700 text-white px-4 py-2 rounded-full text-xs font-bold transition-all shadow-sm">
+                            Launch
+                        </button>
+                    </div>
+
+                    <!-- Desktop Menu -->
+                    <div class="hidden md:flex items-center space-x-8">
+                        <a href="#features"
+                            class="text-sm font-medium text-gray-600 hover:text-medical-600 transition-colors">Features</a>
+                        <a href="#how-it-works"
+                            class="text-sm font-medium text-gray-600 hover:text-medical-600 transition-colors">How it
+                            Works</a>
+                        <a href="#about-dev"
+                            class="text-sm font-medium text-gray-600 hover:text-medical-600 transition-colors">Developer</a>
+                        <button onclick="enterApp()"
+                            class="bg-medical-600 hover:bg-medical-700 text-white px-5 py-2 rounded-full text-sm font-semibold transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                            Launch App
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <section
+            class="pt-32 pb-20 lg:pt-40 lg:pb-28 bg-gradient-to-br from-gray-50 via-medical-50/30 to-white overflow-hidden">
+            <div class="max-w-7xl mx-auto px-4 text-center">
+                <div
+                    class="inline-flex items-center gap-2 bg-white border border-gray-200 px-3 py-1 rounded-full shadow-sm mb-6 animate-fade-in-up">
+                    <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                    <span class="text-xs font-semibold text-gray-600 uppercase tracking-wide">Live Beta v1.2</span>
+                </div>
+                <h1 class="text-5xl md:text-7xl font-bold text-gray-900 mb-6 leading-tight tracking-tight">
+                    Medical Documentation, <br>
+                    <span
+                        class="text-transparent bg-clip-text bg-gradient-to-r from-medical-600 to-cyan-500">Reimagined.</span>
+                </h1>
+                <p class="text-xl text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed">
+                    Transform doctor-patient conversations into structured clinical SOAP notes instantly using advanced
+                    Code-Switched Transcription AI.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                    <button onclick="enterApp()"
+                        class="w-full sm:w-auto px-8 py-4 bg-medical-600 hover:bg-medical-700 text-white rounded-xl font-bold text-lg shadow-xl shadow-medical-200 transition-all hover:scale-105 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-microchip"></i> Try MedScribe Free
+                    </button>
+                    <a href="#how-it-works"
+                        class="w-full sm:w-auto px-8 py-4 bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 rounded-xl font-bold text-lg shadow-sm transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-play text-gray-400"></i> See How it Works
+                    </a>
+                </div>
+
+                <!-- Stats/Trust -->
+                <div
+                    class="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 opacity-70 grayscale hover:grayscale-0 transition-all duration-500">
+                    <div class="flex flex-col items-center">
+                        <span class="text-2xl font-bold text-gray-900">99%</span>
+                        <span class="text-sm text-gray-500">Uptime</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <span class="text-2xl font-bold text-gray-900">
+                            < 10s</span>
+                                <span class="text-sm text-gray-500">Processing Time</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <span class="text-2xl font-bold text-gray-900">Secure</span>
+                        <span class="text-sm text-gray-500">Local Temporary Storage</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <span class="text-2xl font-bold text-gray-900">AI</span>
+                        <span class="text-sm text-gray-500">Gemini Flash Powered</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Grid -->
+        <section id="features" class="py-20 bg-white">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-4">Why MedScribe?</h2>
+                    <p class="text-gray-500 max-w-xl mx-auto">Designed to reduce burnout and let physicians focus on
+                        what matters most: the patient.</p>
+                </div>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <!-- Feature 1 -->
+                    <div
+                        class="p-8 rounded-2xl bg-gray-50 hover:bg-medical-50 transition-colors group border border-gray-100">
+                        <div
+                            class="w-12 h-12 bg-white rounded-lg shadow-sm flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-file-waveform text-medical-600 text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-3">Audio-to-SOAP</h3>
+                        <p class="text-gray-600 leading-relaxed">Simply record the consultation. Our AI extracts
+                            Subjective, Objective, Assessment, and Plan details automatically.</p>
+                    </div>
+                    <!-- Feature 2 -->
+                    <div
+                        class="p-8 rounded-2xl bg-gray-50 hover:bg-medical-50 transition-colors group border border-gray-100">
+                        <div
+                            class="w-12 h-12 bg-white rounded-lg shadow-sm flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-language text-blue-500 text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-3">Code-Switching Support</h3>
+                        <p class="text-gray-600 leading-relaxed">Optimized for multi-lingual environments. Seamlessly
+                            handles English and Urdu/Hindi mixed conversations.</p>
+                    </div>
+                    <!-- Feature 3 -->
+                    <div
+                        class="p-8 rounded-2xl bg-gray-50 hover:bg-medical-50 transition-colors group border border-gray-100">
+                        <div
+                            class="w-12 h-12 bg-white rounded-lg shadow-sm flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-file-pdf text-red-500 text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-3">Instant Reports</h3>
+                        <p class="text-gray-600 leading-relaxed">Generate official PDF reports with one click, ready to
+                            be attached to your EHR system.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works / Technical Architecture -->
+        <section id="how-it-works" class="py-20 bg-white border-t border-gray-100">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-4">How It Works</h2>
+                    <p class="text-gray-500 max-w-2xl mx-auto">A look under the hood at the AI pipeline powering
+                        MedScribe.</p>
+                </div>
+
+                <div class="relative">
+                    <!-- Connecting Line (Desktop) -->
+                    <div class="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-gray-200 -translate-y-1/2 z-0">
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-8 relative z-10">
+                        <!-- Step 1 -->
+                        <div
+                            class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 text-center transform transition-transform hover:-translate-y-2">
+                            <div
+                                class="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-white shadow-sm">
+                                <i class="fa-solid fa-microphone text-2xl"></i>
+                            </div>
+                            <h3 class="font-bold text-gray-900 mb-2">1. Input</h3>
+                            <p class="text-sm text-gray-500">Audio is captured via the browser's MediaRecorder API or
+                                file upload.</p>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div
+                            class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 text-center transform transition-transform hover:-translate-y-2">
+                            <div
+                                class="w-16 h-16 bg-purple-50 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-white shadow-sm">
+                                <i class="fa-solid fa-server text-2xl"></i>
+                            </div>
+                            <h3 class="font-bold text-gray-900 mb-2">2. Analyze</h3>
+                            <p class="text-sm text-gray-500">FastAPI backend uploads audio to Gemini 1.5 Flash for
+                                multimodal processing.</p>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div
+                            class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 text-center transform transition-transform hover:-translate-y-2">
+                            <div
+                                class="w-16 h-16 bg-yellow-50 text-yellow-600 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-white shadow-sm">
+                                <i class="fa-solid fa-wand-magic-sparkles text-2xl"></i>
+                            </div>
+                            <h3 class="font-bold text-gray-900 mb-2">3. Extract</h3>
+                            <p class="text-sm text-gray-500">The LLM diarizes speakers and extracts SOAP components from
+                                mixed-language speech.</p>
+                        </div>
+
+                        <!-- Step 4 -->
+                        <div
+                            class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 text-center transform transition-transform hover:-translate-y-2">
+                            <div
+                                class="w-16 h-16 bg-green-50 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-white shadow-sm">
+                                <i class="fa-solid fa-file-pdf text-2xl"></i>
+                            </div>
+                            <h3 class="font-bold text-gray-900 mb-2">4. Report</h3>
+                            <p class="text-sm text-gray-500">Structured JSON is rendered into a UI and converted to a
+                                downloadable PDF.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Developer / Portfolio Section -->
+        <section id="about-dev" class="py-20 border-t border-gray-100 bg-gray-50">
+            <div class="max-w-4xl mx-auto px-4 text-center">
+                <div class="bg-white p-10 rounded-3xl shadow-xl border border-gray-100">
+                    <span
+                        class="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-bold mb-6">UNIVERSITY
+                        PROJECT</span>
+                    <h2 class="text-3xl font-bold text-gray-900 mb-6">Built to Innovate Healthcare</h2>
+                    <p class="text-gray-600 mb-8 text-lg leading-relaxed">
+                        MedScribe was developed as a capstone project to demonstrate the potential of Large Language
+                        Models in reducing physician administrative burden.
+                        It acts as a proof-of-concept for real-time automated clinical scribe systems.
+                    </p>
+                    <div class="flex flex-col sm:flex-row justify-center items-center gap-6">
+                        <div class="flex items-center gap-4">
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="Profile"
+                                class="w-16 h-16 rounded-full bg-gray-100 border-2 border-white shadow-md">
+                            <div class="text-left">
+                                <h4 class="font-bold text-gray-900">Made by Abdullah</h4>
+                                <p class="text-sm text-gray-500">AI Engineer & Student</p>
+                            </div>
+                        </div>
+                        <div class="h-8 w-px bg-gray-300 hidden sm:block"></div>
+                        <div class="flex gap-4">
+                            <a href="https://linkedin.com/in/abdullah" target="_blank"
+                                class="flex items-center gap-2 text-gray-600 hover:text-[#0077b5] transition-colors">
+                                <i class="fa-brands fa-linkedin text-2xl"></i>
+                                <span class="font-medium">Connect</span>
+                            </a>
+                            <a href="https://github.com/abdullah" target="_blank"
+                                class="flex items-center gap-2 text-gray-600 hover:text-black transition-colors">
+                                <i class="fa-brands fa-github text-2xl"></i>
+                                <span class="font-medium">View Code</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="py-8 text-center text-gray-500 text-sm">
+            <p>&copy; 2024 MedScribe AI Project. Not for actual clinical use.</p>
+        </footer>
+    </div>
+
+
+    <!-- APP INTERFACE (Initially Hidden) -->
+    <div id="app-container"
+        class="hidden min-h-screen bg-gray-50 flex flex-col transition-opacity duration-500 opacity-0">
+
+        <!-- App Header -->
+        <nav class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+                <button onclick="exitApp()"
+                    class="flex items-center gap-2 text-gray-500 hover:text-medical-600 transition-colors">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span class="font-medium">Back to Home</span>
+                </button>
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-notes-medical text-medical-600 text-xl"></i>
+                    <span class="font-bold text-gray-900">MedScribe<span class="text-medical-500">.ai</span></span>
+                </div>
+                <div class="flex gap-2">
+                    <span
+                        class="text-xs bg-medical-50 text-medical-700 px-3 py-1.5 rounded-full font-medium border border-medical-100">
+                        <i class="fa-solid fa-circle text-[8px] animate-pulse mr-1"></i> System Ready
+                    </span>
+                </div>
+            </div>
+        </nav>
+
+        <!-- App Content -->
+        <main class="flex-grow max-w-5xl mx-auto w-full px-4 py-8">
+
+            <!-- Input Card -->
+            <div class="bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden mb-8">
+                <!-- Tabs -->
+                <div class="flex border-b border-gray-100">
+                    <button id="tab-mic"
+                        class="flex-1 py-5 text-center font-bold text-medical-600 border-b-2 border-medical-600 bg-medical-50/50 transition-all">
+                        <i class="fa-solid fa-microphone mr-2"></i> Live Recording
+                    </button>
+                    <button id="tab-upload"
+                        class="flex-1 py-5 text-center font-bold text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-all">
+                        <i class="fa-solid fa-cloud-arrow-up mr-2"></i> Upload File
+                    </button>
+                </div>
+
+                <!-- Action Area -->
+                <div class="p-10 text-center relative" id="input-area">
+
+                    <!-- Mic View -->
+                    <div id="mic-view" class="py-4 transition-all duration-300">
+                        <div class="mb-4 relative inline-block">
+                            <!-- Ripple Effect Ring (Active only when recording) -->
+                            <div id="mic-ring"
+                                class="absolute inset-0 rounded-full border-4 border-medical-500 opacity-0 transition-all duration-300">
+                            </div>
+
+                            <button id="recordBtn"
+                                class="relative z-10 w-28 h-28 rounded-full bg-white text-gray-400 border-4 border-gray-100 flex items-center justify-center mx-auto transition-all duration-300 hover:shadow-lg hover:border-medical-100 hover:text-medical-500 group">
+                                <i
+                                    class="fa-solid fa-microphone text-4xl group-hover:scale-110 transition-transform"></i>
+                            </button>
+                        </div>
+                        <h3 id="micStatus" class="text-xl font-bold text-gray-700 mb-1">Ready to Record</h3>
+                        <p class="text-sm text-gray-400 mb-4">Tap the microphone to begin consultation</p>
+                        <p id="timer"
+                            class="font-mono text-medical-600 font-bold text-lg hidden bg-medical-50 inline-block px-3 py-1 rounded-md">
+                            00:00</p>
+                    </div>
+
+                    <!-- Upload View -->
+                    <div id="upload-view" class="hidden py-8 animate-fade-in">
+                        <div class="border-2 border-dashed border-gray-200 rounded-xl p-8 hover:border-medical-300 hover:bg-medical-50/30 transition-all cursor-pointer"
+                            onclick="document.getElementById('audioInput').click()">
+                            <div
+                                class="w-16 h-16 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fa-solid fa-cloud-arrow-up text-2xl"></i>
+                            </div>
+                            <h3 class="font-bold text-gray-900">Click to Upload</h3>
+                            <p class="text-sm text-gray-500 mt-1">MP3, WAV, or M4A supported</p>
+                        </div>
+                        <input type="file" id="audioInput" class="hidden" accept="audio/*">
+                        <p id="fileName" class="mt-4 text-sm font-medium text-medical-600"></p>
+                    </div>
+                </div>
+
+                <!-- Loader Overlay -->
+                <div id="loader"
+                    class="hidden absolute inset-0 bg-white/90 backdrop-blur-sm z-20 flex flex-col items-center justify-center">
+                    <div class="relative w-20 h-20 mb-6">
+                        <div class="absolute inset-0 border-4 border-gray-200 rounded-full animate-pulse"></div>
+                        <div class="absolute inset-0 border-4 border-t-medical-500 rounded-full animate-spin"></div>
+                        <i
+                            class="fa-solid fa-brain absolute inset-0 flex items-center justify-center text-medical-500 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800">Analyzing Consultation</h3>
+                    <p class="text-gray-500 mt-2 animate-pulse">Transcribing & Generating SOAP Notes...</p>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="results" class="hidden space-y-6">
+
+                <!-- Action Bar -->
+                <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                    <h3 class="font-bold text-gray-700 flex items-center gap-2">
+                        <i class="fa-solid fa-clipboard-check text-green-500"></i> Analysis Complete
+                    </h3>
+                    <button onclick="generatePDF()"
+                        class="bg-gray-800 hover:bg-black text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-file-pdf"></i> Download Official Report
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Transcript Column -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col h-[600px]">
+                        <div class="p-4 border-b border-gray-100 bg-gray-50/50 rounded-t-xl">
+                            <h3 class="font-bold text-gray-900 flex items-center gap-2">
+                                <div
+                                    class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center">
+                                    <i class="fa-regular fa-comment-dots"></i>
+                                </div>
+                                Transcribed Conversation
+                            </h3>
+                        </div>
+                        <div id="transcriptText"
+                            class="flex-1 p-6 text-gray-600 text-sm leading-relaxed overflow-y-auto font-medium">
+                            <!-- Content goes here -->
+                        </div>
+                    </div>
+
+                    <!-- SOAP Note Column -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col h-[600px]">
+                        <div class="p-4 border-b border-gray-100 bg-gray-50/50 rounded-t-xl">
+                            <h3 class="font-bold text-gray-900 flex items-center gap-2">
+                                <div
+                                    class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                                    <i class="fa-solid fa-user-doctor"></i>
+                                </div>
+                                Clinical SOAP Note
+                            </h3>
+                        </div>
+                        <div class="flex-1 p-6 overflow-y-auto space-y-4">
+                            <!-- Subjective -->
+                            <div
+                                class="bg-blue-50/50 rounded-xl p-4 border border-blue-100 hover:shadow-md transition-shadow">
+                                <span
+                                    class="text-xs font-bold text-blue-600 uppercase tracking-wider block mb-2">Subjective</span>
+                                <p id="soap-s" class="text-sm text-gray-800 leading-relaxed"></p>
+                            </div>
+                            <!-- Objective -->
+                            <div
+                                class="bg-amber-50/50 rounded-xl p-4 border border-amber-100 hover:shadow-md transition-shadow">
+                                <span
+                                    class="text-xs font-bold text-amber-600 uppercase tracking-wider block mb-2">Objective</span>
+                                <p id="soap-o" class="text-sm text-gray-800 leading-relaxed"></p>
+                            </div>
+                            <!-- Assessment -->
+                            <div
+                                class="bg-purple-50/50 rounded-xl p-4 border border-purple-100 hover:shadow-md transition-shadow">
+                                <span
+                                    class="text-xs font-bold text-purple-600 uppercase tracking-wider block mb-2">Assessment</span>
+                                <p id="soap-a" class="text-sm text-gray-800 leading-relaxed"></p>
+                            </div>
+                            <!-- Plan -->
+                            <div
+                                class="bg-green-50/50 rounded-xl p-4 border border-green-100 hover:shadow-md transition-shadow">
+                                <span
+                                    class="text-xs font-bold text-green-600 uppercase tracking-wider block mb-2">Plan</span>
+                                <p id="soap-p" class="text-sm text-gray-800 leading-relaxed"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC-->
+    <script>
+        // --- NAVIGATION LOGIC ---
+        function enterApp() {
+            const landing = document.getElementById('landing-page');
+            const app = document.getElementById('app-container');
+
+            landing.style.opacity = '0';
+            setTimeout(() => {
+                landing.classList.add('hidden');
+                app.classList.remove('hidden');
+                setTimeout(() => {
+                    app.style.opacity = '1';
+                }, 50);
+            }, 300);
+        }
+
+        function exitApp() {
+            const landing = document.getElementById('landing-page');
+            const app = document.getElementById('app-container');
+
+            app.style.opacity = '0';
+            setTimeout(() => {
+                app.classList.add('hidden');
+                landing.classList.remove('hidden');
+                setTimeout(() => {
+                    landing.style.opacity = '1';
+                }, 50);
+            }, 300);
+        }
+
+        // --- GLOBAL VARIABLES FOR PDF ---
+        let currentTranscript = "";
+        let currentSoap = {};
+
+        // --- PDF GENERATION ---
+        function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const margin = 15;
+
+            // Header Style
+            doc.setFillColor(13, 148, 136); // Medical Teal
+            doc.rect(0, 0, pageWidth, 40, 'F');
+
+            doc.setFontSize(22);
+            doc.setTextColor(255, 255, 255);
+            doc.setFont("helvetica", "bold");
+            doc.text("MedScribe Clinical Report", margin, 20);
+
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "normal");
+            doc.text(`Generated: ${new Date().toLocaleString()}`, margin, 32);
+
+            let yPos = 55;
+
+            function checkPageBreak(heightNeeded) {
+                if (yPos + heightNeeded > 280) {
+                    doc.addPage();
+                    yPos = 20;
+                }
+            }
+
+            function addSection(title, content, color) {
+                checkPageBreak(50);
+
+                // Section Title
+                doc.setFontSize(14);
+                doc.setTextColor(color[0], color[1], color[2]);
+                doc.setFont("helvetica", "bold");
+                doc.text(title, margin, yPos);
+                yPos += 8;
+
+                // Content
+                doc.setFontSize(11);
+                doc.setTextColor(60, 60, 60);
+                doc.setFont("helvetica", "normal");
+                const splitText = doc.splitTextToSize(content || "No data recorded.", pageWidth - (margin * 2));
+                doc.text(splitText, margin, yPos);
+
+                yPos += (splitText.length * 6) + 10;
+            }
+
+            // SOAP Sections
+            addSection("Subjective", currentSoap.subjective, [37, 99, 235]); // Blue
+            addSection("Objective", currentSoap.objective, [217, 119, 6]);   // Amber
+            addSection("Assessment", currentSoap.assessment, [147, 51, 234]); // Purple
+            addSection("Plan", currentSoap.plan, [5, 150, 105]);             // Green
+
+            // Transcript New Page
+            doc.addPage();
+            doc.setFillColor(243, 244, 246);
+            doc.rect(0, 0, pageWidth, 20, 'F');
+            doc.setFontSize(16);
+            doc.setTextColor(31, 41, 55);
+            doc.text("Verbatim Transcript", margin, 13);
+
+            doc.setFontSize(10);
+            doc.setTextColor(75, 85, 99);
+            const transcriptLines = doc.splitTextToSize(currentTranscript, pageWidth - (margin * 2));
+            doc.text(transcriptLines, margin, 30);
+
+            doc.save("MedScribe_Report_v1.pdf");
+        }
+
+        // --- APP INTERFACE LOGIC ---
+        const tabMic = document.getElementById('tab-mic');
+        const tabUpload = document.getElementById('tab-upload');
+        const micView = document.getElementById('mic-view');
+        const uploadView = document.getElementById('upload-view');
+
+        function activateTab(activeTab, otherTab, activeView, otherView) {
+            activeView.classList.remove('hidden');
+            otherView.classList.add('hidden');
+
+            activeTab.className = "flex-1 py-5 text-center font-bold text-medical-600 border-b-2 border-medical-600 bg-medical-50/50 transition-all";
+            activeTab.querySelector('i').className = "fa-solid " + (activeTab.id === 'tab-mic' ? "fa-microphone" : "fa-cloud-arrow-up") + " mr-2";
+
+            otherTab.className = "flex-1 py-5 text-center font-bold text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-all";
+        }
+
+        tabMic.onclick = () => activateTab(tabMic, tabUpload, micView, uploadView);
+        tabUpload.onclick = () => activateTab(tabUpload, tabMic, uploadView, micView);
+
+        // --- RECORDING LOGIC ---
+        let mediaRecorder;
+        let audioChunks = [];
+        let isRecording = false;
+        let startTime, timerInterval;
+        const recordBtn = document.getElementById('recordBtn');
+        const micStatus = document.getElementById('micStatus');
+        const timerDisplay = document.getElementById('timer');
+        const micRing = document.getElementById('mic-ring');
+
+        recordBtn.addEventListener('click', async () => {
+            if (!isRecording) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+
+                    mediaRecorder.ondataavailable = event => audioChunks.push(event.data);
+
+                    mediaRecorder.onstop = () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                        const audioFile = new File([audioBlob], "recording.wav", { type: "audio/wav" });
+                        processFile(audioFile);
+                    };
+
+                    mediaRecorder.start();
+                    isRecording = true;
+
+                    // UI Updates for Recording
+                    recordBtn.innerHTML = '<i class="fa-solid fa-stop text-4xl"></i>';
+                    recordBtn.className = "relative z-10 w-28 h-28 rounded-full bg-red-500 text-white border-4 border-red-200 flex items-center justify-center mx-auto transition-all shadow-lg shadow-red-200 transform scale-105";
+
+                    micStatus.textContent = "Listening...";
+                    micStatus.classList.add("text-red-500");
+
+                    timerDisplay.classList.remove("hidden");
+                    micRing.classList.remove("opacity-0");
+                    micRing.classList.add("recording-pulse");
+
+                    startTime = Date.now();
+                    timerInterval = setInterval(() => {
+                        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                        const mins = String(Math.floor(elapsed / 60)).padStart(2, '0');
+                        const secs = String(elapsed % 60).padStart(2, '0');
+                        timerDisplay.textContent = `${mins}:${secs}`;
+                    }, 1000);
+
+                } catch (err) {
+                    alert("Microphone access denied. Please allow microphone permissions.");
+                }
+            } else {
+                mediaRecorder.stop();
+                isRecording = false;
+                clearInterval(timerInterval);
+
+                // Reset UI
+                recordBtn.innerHTML = '<i class="fa-solid fa-microphone text-4xl"></i>';
+                recordBtn.className = "relative z-10 w-28 h-28 rounded-full bg-white text-gray-400 border-4 border-gray-100 flex items-center justify-center mx-auto transition-all duration-300 hover:shadow-lg hover:border-medical-100 hover:text-medical-500 group";
+
+                micStatus.textContent = "Processing...";
+                micStatus.classList.remove("text-red-500");
+                micRing.classList.remove("recording-pulse");
+                micRing.classList.add("opacity-0");
+            }
+        });
+
+        // --- FILE UPLOAD LOGIC ---
+        const fileInput = document.getElementById('audioInput');
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files[0]) processFile(e.target.files[0]);
+        });
+
+        // --- PROCESSING LOGIC ---
+        async function processFile(file) {
+            document.getElementById('loader').classList.remove('hidden');
+            document.getElementById('results').classList.add('hidden');
+            document.getElementById('input-area').classList.add('opacity-50', 'pointer-events-none');
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                // Use relative path for deployment
+                const response = await fetch('/transcribe', { method: 'POST', body: formData });
+
+                if (!response.ok) throw new Error("Server Error");
+                const data = await response.json();
+
+                // Store Data
+                currentTranscript = data.transcript || "";
+                currentSoap = data.soap || {};
+
+                // Update UI
+                document.getElementById('transcriptText').innerText = currentTranscript;
+                document.getElementById('soap-s').innerText = currentSoap.subjective || "No data.";
+                document.getElementById('soap-o').innerText = currentSoap.objective || "No data.";
+                document.getElementById('soap-a').innerText = currentSoap.assessment || "No data.";
+                document.getElementById('soap-p').innerText = currentSoap.plan || "No data.";
+
+                // Show Results
+                document.getElementById('results').classList.remove('hidden');
+                document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+
+            } catch (error) {
+                alert("An error occurred: " + error.message);
+            } finally {
+                document.getElementById('loader').classList.add('hidden');
+                document.getElementById('input-area').classList.remove('opacity-50', 'pointer-events-none');
+
+                // Reset Timer Display if it was a mic recording
+                if (!isRecording) {
+                    micStatus.textContent = "Ready to Record";
+                    timerDisplay.classList.add("hidden");
+                    timerDisplay.textContent = "00:00";
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>
