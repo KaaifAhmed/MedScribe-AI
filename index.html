@@ -313,21 +313,22 @@
                     </p>
                     <div class="flex flex-col sm:flex-row justify-center items-center gap-6">
                         <div class="flex items-center gap-4">
-                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="Profile"
+                            <img src="https://media.licdn.com/dms/image/v2/D4E03AQFoKaPQg9x4ow/profile-displayphoto-crop_800_800/B4EZifn67yGoAM-/0/1755024701704?e=1767830400&v=beta&t=ssbnOiQ8cf7foSw4wVwzbuwIyypZyYkrrmtirprIvMk"
+                                alt="Profile"
                                 class="w-16 h-16 rounded-full bg-gray-100 border-2 border-white shadow-md">
                             <div class="text-left">
-                                <h4 class="font-bold text-gray-900">Made by Abdullah</h4>
-                                <p class="text-sm text-gray-500">AI Engineer & Student</p>
+                                <h4 class="font-bold text-gray-900">Made by Kaaif Ahmed</h4>
+                                <p class="text-sm text-gray-500">AI Engineering Student</p>
                             </div>
                         </div>
                         <div class="h-8 w-px bg-gray-300 hidden sm:block"></div>
                         <div class="flex gap-4">
-                            <a href="https://linkedin.com/in/abdullah" target="_blank"
+                            <a href="https://www.linkedin.com/in/kaaifahmedkhan" target="_blank"
                                 class="flex items-center gap-2 text-gray-600 hover:text-[#0077b5] transition-colors">
                                 <i class="fa-brands fa-linkedin text-2xl"></i>
                                 <span class="font-medium">Connect</span>
                             </a>
-                            <a href="https://github.com/abdullah" target="_blank"
+                            <a href="https://github.com/KaaifAhmed" target="_blank"
                                 class="flex items-center gap-2 text-gray-600 hover:text-black transition-colors">
                                 <i class="fa-brands fa-github text-2xl"></i>
                                 <span class="font-medium">View Code</span>
@@ -729,7 +730,7 @@
 
             try {
                 // Use relative path for deployment
-                const response = await fetch('/transcribe', { method: 'POST', body: formData });
+                const response = await fetch('https://medscribe-ai-pf4w.onrender.com/transcribe', { method: 'POST', body: formData });
 
                 if (!response.ok) throw new Error("Server Error");
                 const data = await response.json();
