@@ -1,17 +1,21 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
-import google.generativeai as genai
+from google import genai
+from dotenv import load_dotenv
 import os
 import shutil
 import json
 
 # --- CONFIGURATION ---
-# ⚠️ PASTE YOUR API KEY HERE FOR LOCAL TESTING
-if "GOOGLE_API_KEY" not in os.environ:
-    os.environ["GOOGLE_API_KEY"] = "AIzaSyAAlZyBbA4-eGoE6zm_GdLqCeL6IiQ7e1o"
+# Load environment variables from .env file
+load_dotenv()
 
-genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
+google_api_key = os.getenv("GOOGLE_API_KEY")
+if not google_api_key:
+    raise ValueError("GOOGLE_API_KEY not found in environment variables. Please set it in .env file.")
+
+client = genai.Client(api_key=google_api_key)
 
 app = FastAPI()
 
@@ -40,36 +44,40 @@ def transcribe_audio(file: UploadFile = File(...)):
     try:
         # 2. Upload to Gemini
         print("🚀 Uploading to Gemini...")
-        audio_file = genai.upload_file(path=temp_filename)
+        audio_file = client.files.upload(file=temp_filename)
         
         # Wait for processing
         import time
         while audio_file.state.name == "PROCESSING":
             time.sleep(1)
-            audio_file = genai.get_file(audio_file.name)
 
-        # 3. Generate Analysis
-        model = genai.GenerativeModel('models/gemini-flash-latest')
-        
+            audio_file = client.files.get(audio_file.name)
+            print("Processing...")
+                
         prompt = """
         You are MedScribe-CS. Listen to this Code-Switched (Urdu/English) medical consultation.
-        
+
         Task 1: Transcribe verbatim in Roman Urdu, with Urdu medical terms. Also diarize according to who is speaking, like doctor, patient, etc.
         Task 2: Extract a SOAP Note JSON, in the SOAP note, don't include any urdu terms.
-        
+
         Output strictly valid JSON.
-        
+
         Output Format:
         {
             "transcript": "...",
             "soap": { "subjective": "...", "objective": "...", "assessment": "...", "plan": "..." }
         }
         """
-        
-        response = model.generate_content(
-            [prompt, audio_file],
-            generation_config={"response_mime_type": "application/json"}
-        )        
+
+        print("Generating response...")
+        response = client.models.generate_content(
+            contents=[prompt, audio_file],
+            model="models/gemini-flash-latest",
+            config={'response_mime_type': 'application/json'},
+        )
+
+        print("Response generated!")
+        print(response)
         
         # Cleanup temp file
         os.remove(temp_filename)
@@ -79,16 +87,22 @@ def transcribe_audio(file: UploadFile = File(...)):
         result_json = json.loads(response.text)
         
         # ADD THIS DEBUG PRINT:
-        print("\n✅ Sending back JSON to Frontend:")
         print(json.dumps(result_json, indent=2)[:500] + "...") # Print first 500 chars
+        print("\n✅ Sending back JSON to Frontend:")    
         
         # Cleanup temp file
         if os.path.exists(temp_filename):
             os.remove(temp_filename)
         
-        return result_json
+        return result_json  
 
     except Exception as e:
-        return {"error": str(e)}
-
+            # CRITICAL: Print the error so you can see it in the terminal
+            print(f"❌ ERROR: {str(e)}")
+            return {"error": str(e)}
+        
+    finally:
+        # Cleanup temp file always
+        if os.path.exists(temp_filename):
+            os.remove(temp_filename)
 # Run with: uvicorn main:app --reload

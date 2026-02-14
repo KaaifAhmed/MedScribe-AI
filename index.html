@@ -729,7 +729,7 @@
 
             try {
                 // Use relative path for deployment
-                const response = await fetch('https://medscribe-ai-pf4w.onrender.com/transcribe', { method: 'POST', body: formData });
+                const response = await fetch('/transcribe', { method: 'POST', body: formData });
 
                 if (!response.ok) throw new Error("Server Error");
                 const data = await response.json();
