@@ -8,12 +8,25 @@ import shutil
 import json
 
 # --- CONFIGURATION ---
-# Load environment variables from .env file
-load_dotenv()
 
+# 1. First, try to get the key from the System (Production/Render)
 google_api_key = os.getenv("GOOGLE_API_KEY")
+
+# 2. If not found, load the .env file and try again (Local Development)
 if not google_api_key:
-    raise ValueError("GOOGLE_API_KEY not found in environment variables. Please set it in .env file.")
+    print("🔍 Key not in system environment. Loading .env file...")
+    load_dotenv() 
+    google_api_key = os.getenv("GOOGLE_API_KEY")
+
+# 3. Final Check: If it's STILL missing, stop the app.
+if not google_api_key:
+    raise ValueError(
+        "❌ FATAL ERROR: GOOGLE_API_KEY is missing!\n"
+        "   👉 On Localhost: Create a '.env' file with 'GOOGLE_API_KEY=your_key'.\n"
+        "   👉 On Render: Go to Settings > Environment Variables and add it there."
+    )
+
+print("✅ API Key loaded successfully.")
 
 client = genai.Client(api_key=google_api_key)
 
